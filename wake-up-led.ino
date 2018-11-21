@@ -1,50 +1,39 @@
-#include <TimeLib.h>
-#include <DS1307RTC.h> // https://www.arduinolibraries.info/libraries/ds1307-rtc by Michael Margolis
-
+#include <Time.h>
 #include <Wire.h>
+#include <DS1307RTC.h>
+
+int ledPinRed   = 12;
+int ledPinGreen = 8;
 
 void setup() {
   Serial.begin(9600);
-  while (!Serial) ; // wait for serial
-  delay(200);
-  Serial.println("DS1307RTC Read Test");
-  Serial.println("-------------------");
+  pinMode(ledPinRed, OUTPUT);
+  pinMode(ledPinGreen, OUTPUT);
 }
 
 void loop() {
   tmElements_t tm;
-
+  
   if (RTC.read(tm)) {
-    Serial.print("Ok, Time = ");
-    print2digits(tm.Hour);
-    Serial.write(':');
-    print2digits(tm.Minute);
-    Serial.write(':');
-    print2digits(tm.Second);
-    Serial.print(", Date (D/M/Y) = ");
-    Serial.print(tm.Day);
-    Serial.write('/');
-    Serial.print(tm.Month);
-    Serial.write('/');
-    Serial.print(tmYearToCalendar(tm.Year));
-    Serial.println();
-  } else {
-    if (RTC.chipPresent()) {
-      Serial.println("The DS1307 is stopped.  Please run the SetTime");
-      Serial.println("example to initialize the time and begin running.");
-      Serial.println();
-    } else {
-      Serial.println("DS1307 read error!  Please check the circuitry.");
-      Serial.println();
+    if (tm.Hour > 18 && tm.Hour <= 23) {
+      Serial.println("es ist zwischen 19 und 24 Uhr");
+       digitalWrite(ledPinRed, HIGH);
+       digitalWrite(ledPinGreen, LOW);
     }
-    delay(9000);
+    if (tm.Hour >= 0 && tm.Hour <= 5) {
+      Serial.println("es ist zwischen 0 und 6 Uhr");
+      digitalWrite(ledPinRed, HIGH);
+      digitalWrite(ledPinGreen, LOW);
+    }
+    if (tm.Hour > 5 && tm.Hour <= 18) {
+      Serial.println("es ist zwischen 6 und 19 Uhr");
+      digitalWrite(ledPinGreen, HIGH);
+      digitalWrite(ledPinRed, LOW);
+    }
   }
-  delay(1000);
+  delay(10000);
 }
 
-void print2digits(int number) {
-  if (number >= 0 && number < 10) {
-    Serial.write('0');
-  }
-  Serial.print(number);
-}
+
+
+
